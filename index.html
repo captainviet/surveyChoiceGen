@@ -1,0 +1,47 @@
+<!DOCTYPE>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <script src="lib/jquery.js"></script>
+    <script src="lib/pnglib.js"></script>
+    <script src="lib/jszip.js"></script>
+    <script src="lib/xlsx.js"></script>
+    <script src="lib/html2canvas.js"></script>
+    <script src="lib/canvas2image.js"></script>
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <label for="function">Select generator</label>
+        <input type="radio" name="function" value="0" checked>Ball Box
+        <input type="radio" name="function" value="1">Square
+        <input type="radio" name="function" value="2">Choice
+        <input type="radio" name="function" value="3">Excel
+    </div>
+    <div class="container-fluid">
+        <label for="ratio">Enter number of balls (for multiple use ",")&nbsp;</label>
+        <input type="text" class="ratio" name="ratio">
+    </div>
+    <div class="container-fluid xlsx-collector" id="drop"></div>
+    <div class="container-fluid price-collector">
+        <label for="price-1">Enter purple's price&nbsp;</label>
+        <input type="text" class="price-1" name="price-1">
+        <label for="price-2">Enter yellow's price&nbsp;</label>
+        <input type="text" class="price-2" name="price-2">
+    </div>
+    <div class="container-fluid">
+        <input type="checkbox" class="showImage">Show Image
+    </div>
+    <div class="container-fluid">
+        <button class="submit" type="submit">Generate</button>
+    </div>
+    <div class="image"></div>
+    <div class="container-fluid choice">
+
+    </div>
+    <div id="canvas"></div>
+</body>
+
+</html>

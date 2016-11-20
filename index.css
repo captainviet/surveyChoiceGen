@@ -1,0 +1,56 @@
+.container-fluid {
+    width: 100%;
+    padding: 1%;
+    text-align: center;
+}
+
+.choice > div {
+    width: 464px;
+}
+
+.image img,
+.choice-item>img {
+    height: 200px;
+    width: 200px;
+}
+
+.choice-item {
+    width: 200px;
+    padding: 15px;
+    border: thin solid black;
+    display: inline-block;
+}
+
+.choice-item>img {
+    display: block;
+    margin: 0 auto 30px auto;
+}
+
+.info {
+    margin: 0 auto;
+    text-align: center;
+    width: 200px;
+}
+
+.inline-image {
+    padding: 2px 0;
+}
+
+.inline-image>img {
+    vertical-align: middle;
+}
+
+.price-collector {
+    display: none;
+}
+
+.xlsx-collector {
+    height: 5%;
+    width: 40%;
+    margin: 0 auto;
+    border: medium dotted red;
+}
+
+.price-1 {
+    margin-right: 50px;
+}
