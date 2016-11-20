@@ -115,7 +115,7 @@ const ImageProcessor = {
             const ratioArray = ratio.split(",");
             const This = this;
             if (generator == 0) {
-                ratioArray.forEach(function (ratio) {
+                ratioArray.forEach(function(ratio) {
                     const p = This.ballboxGen(ratio / 100);
                     This.downloadSrc("image/png;base64,", p.getBase64(), "ballbox.png");
                     if (opts.isShowImage) {
@@ -125,7 +125,7 @@ const ImageProcessor = {
                 return;
             }
             if (generator == 1) {
-                ratioArray.forEach(function (color) {
+                ratioArray.forEach(function(color) {
                     const p = This.squareGen(color);
                     This.downloadSrc("image/png;base64,", p.getBase64(), color + ".png");
                     if (opts.isShowImage) {
@@ -154,7 +154,7 @@ const ExcelProcessor = {
     schema: {},
     toJSON(workbook) {
         let result = {};
-        workbook.SheetNames.forEach(function (sheetName) {
+        workbook.SheetNames.forEach(function(sheetName) {
             let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
             if (roa.length > 0) {
                 result[sheetName] = roa;
@@ -196,9 +196,9 @@ const ExcelProcessor = {
     },
 }
 
-$(function () {
+$(function() {
 
-    $(".submit").on("click", function () {
+    $(".submit").on("click", function() {
         let ratio = $(".ratio").val();
         $(".ratio").val(null);
 
@@ -225,7 +225,7 @@ $(function () {
 
     });
 
-    $("input:radio[name='function']").change(function () {
+    $("input:radio[name='function']").change(function() {
         if ($(this).is(":checked") && $(this).val() == "2") {
             // show price
             $(".price-collector").css("display", "block");
@@ -235,7 +235,7 @@ $(function () {
         }
     });
 
-    $("input:radio[name='function']").change(function () {
+    $("input:radio[name='function']").change(function() {
         if ($(this).is(":checked") && $(this).val() == "3") {
             // show price
             $(".xlsx-collector").css("display", "block");
@@ -256,7 +256,7 @@ $(function () {
         for (i = 0, f = files[i]; i != files.length; ++i) {
             let reader = new FileReader();
             let name = f.name;
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 let data = e.target.result;
 
                 /* if binary string, read with type 'binary' */
@@ -268,52 +268,52 @@ $(function () {
                 const sheetName = workbook.SheetNames[0];
                 const dataSheet = json[sheetName];
 
-                const filepath = "res/data.json";
-                const file = new File([""], filepath);
-                const str = JSON.stringify(dataSheet);
-                file.open("w");
-                file.write(str);
-                file.close();
-                // // let miniSheet = dataSheet.slice(0, 5);
-                // // console.log(miniSheet);
-                // const schema = ExcelProcessor.schema;
-                // dataSheet.forEach(function (row, i) {
-                //     let containerId = "container" + i;
-                //     let container = '<div class="container-fluid choice" id="' + containerId + '">'
-                //     $("body").append(container);
-                //     let choiceId = "choice" + i;
-                //     let wrapper = '<div id="' + choiceId + '">';
-                //     $("#" + containerId).append(wrapper);
-                //     let ratio1 = row[schema.A1K];
-                //     let purple1 = row[schema.A1V];
-                //     let orange1 = row[schema.A2V];
-                //     let ratio2 = row[schema.B1K];
-                //     let purple2 = row[schema.B1V];
-                //     let orange2 = row[schema.B2V];
-                //     if (ratio1.indexOf("%") > -1) {
-                //         ratio1 = ratio1.slice(0, ratio1.length - 1);
-                //     }
-                //     if (ratio2.indexOf("%") > -1) {
-                //         ratio2 = ratio2.slice(0, ratio2.length - 1);
-                //     }
-                //     console.log(ratio1, purple1, orange1, ratio2, purple2, orange2);
-                //     let choiceA = ImageProcessor.choiceGen(ratio1, purple1, orange1);
-                //     let choiceB = ImageProcessor.choiceGen(ratio2, purple2, orange2);
-                //     $("#" + choiceId).append(choiceA);
-                //     $("#" + choiceId).append(choiceB);
-                //     let filename = [i + 1, ratio1, purple1, orange1, ratio2, purple2, orange2].join("-");
-                //     console.log("filename:", filename);
-                //     html2canvas($("#" + choiceId), {
-                //         onrendered: canvas => {
-                //             setTimeout(() => {
-                //                 Canvas2Image.saveAsPNG(canvas, filename);
-                //                 console.log("Downloaded", choiceId);
-                //                 $("#" + containerId).remove();
-                //             }, i * 200);
-                //             // $("#canvas").append(canvas);
-                //         }
-                //     });
-                // })
+                // const filepath = "res/data.json";
+                // const file = new File([""], filepath);
+                // const str = JSON.stringify(dataSheet);
+                // file.open("w");
+                // file.write(str);
+                // file.close();
+                let miniSheet = dataSheet.slice(0, 5);
+                console.log(miniSheet);
+                const schema = ExcelProcessor.schema;
+                miniSheet.forEach(function(row, i) {
+                    let containerId = "container" + i;
+                    let container = '<div class="container-fluid choice" id="' + containerId + '">'
+                    $("body").append(container);
+                    let choiceId = "choice" + i;
+                    let wrapper = '<div id="' + choiceId + '">';
+                    $("#" + containerId).append(wrapper);
+                    let ratio1 = row[schema.A1K];
+                    let purple1 = row[schema.A1V];
+                    let orange1 = row[schema.A2V];
+                    let ratio2 = row[schema.B1K];
+                    let purple2 = row[schema.B1V];
+                    let orange2 = row[schema.B2V];
+                    if (ratio1.indexOf("%") > -1) {
+                        ratio1 = ratio1.slice(0, ratio1.length - 1);
+                    }
+                    if (ratio2.indexOf("%") > -1) {
+                        ratio2 = ratio2.slice(0, ratio2.length - 1);
+                    }
+                    console.log(ratio1, purple1, orange1, ratio2, purple2, orange2);
+                    let choiceA = ImageProcessor.choiceGen(ratio1, purple1, orange1);
+                    let choiceB = ImageProcessor.choiceGen(ratio2, purple2, orange2);
+                    $("#" + choiceId).append(choiceA);
+                    $("#" + choiceId).append(choiceB);
+                    let filename = [i + 1, ratio1, purple1, orange1, ratio2, purple2, orange2].join("-");
+                    console.log("filename:", filename);
+                    html2canvas($("#" + choiceId), {
+                        onrendered: canvas => {
+                            setTimeout(() => {
+                                Canvas2Image.saveAsPNG(canvas, filename);
+                                console.log("Downloaded", choiceId);
+                                $("#" + containerId).remove();
+                            }, i * 200);
+                            // $("#canvas").append(canvas);
+                        }
+                    });
+                })
             };
             reader.readAsBinaryString(f);
         }
