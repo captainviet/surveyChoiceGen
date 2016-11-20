@@ -10,22 +10,15 @@ const ImageProcessor = {
         "orange": { r: 255, g: 165, b: 0, a: 1 },
     },
     ballboxGen(ratio) {
-        // number of rows
         const row = 10;
-        // division's length
         const colSpan = 35;
-        // ball's radius
         const radius = colSpan / 3;
-        // number of division
         const step = row + 1;
-        // image's size (width, height)
         const imageSize = step * colSpan;
-        // border thickness
         const thickness = 3;
-        // define color
         const p = new PNGlib(imageSize, imageSize, 256);
         let colorCode = this.colorPalette["transparent"];
-        const background = p.color(colorCode.r, colorCode.g, colorCode.b, colorCode.a); // set the background transparent
+        const background = p.color(colorCode.r, colorCode.g, colorCode.b, colorCode.a);
 
 
         let count = 0;
@@ -120,7 +113,6 @@ const ImageProcessor = {
                 if (ratio2.indexOf("%") > -1) {
                     ratio2 = ratio2.slice(0, ratio2.length - 1);
                 }
-                console.log(ratio1, purple1, orange1, ratio2, purple2, orange2);
                 let choiceA = ImageProcessor.choiceGen(ratio1, purple1, orange1);
                 let choiceB = ImageProcessor.choiceGen(ratio2, purple2, orange2);
                 $("#" + choiceId).append(choiceA);
@@ -134,11 +126,11 @@ const ImageProcessor = {
                             console.log("Downloaded", choiceId);
                             $("#" + containerId).remove();
                         }, i * 200);
-                        // $("#canvas").append(canvas);
                     }
                 });
                 ExcelProcessor.updateIndex(end);
             }
+            return;
         }
         if (generator == 2) {
             const purplePrice = opts.purplePrice;
@@ -208,28 +200,6 @@ const ExcelProcessor = {
             }
         });
         const sheetName = workbook.SheetNames[0];
-        // this.schema = {
-        //     A: {
-        //         purple: {
-        //             perce: workbook.Sheets[sheetName].D1.h,
-        //             price: workbook.Sheets[sheetName].F1.h,
-        //         },
-        //         orange: {
-        //             perce: workbook.Sheets[sheetName].E1.h,
-        //             price: workbook.Sheets[sheetName].G1.h,
-        //         },
-        //     },
-        //     B: {
-        //         purple: {
-        //             perce: workbook.Sheets[sheetName].H1.h,
-        //             price: workbook.Sheets[sheetName].J1.h,
-        //         },
-        //         orange: {
-        //             perce: workbook.Sheets[sheetName].I1.h,
-        //             price: workbook.Sheets[sheetName].K1.h,
-        //         },
-        //     },
-        // }
         this.schema = {
             A1K: workbook.Sheets[sheetName].D1.h,
             A1V: workbook.Sheets[sheetName].F1.h,
@@ -240,8 +210,6 @@ const ExcelProcessor = {
         }
         const dataSheet = result[sheetName];
         this.json = dataSheet
-        console.log(this.schema);
-        console.log(this.json);
     },
     updateIndex(index) {
         this.index = index;
@@ -272,7 +240,6 @@ $(function() {
             $(".price-2").val(null);
         }
 
-        console.log(generator, typeof (ratio), opts);
         ImageProcessor.process(generator, ratio, opts);
 
     });
@@ -302,7 +269,6 @@ $(function() {
     function handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
-        console.log("handle triggered");
         const files = e.dataTransfer.files;
         let i, f;
         for (i = 0, f = files[i]; i != files.length; ++i) {
@@ -315,7 +281,6 @@ $(function() {
                 let workbook = XLSX.read(data, { type: 'binary' });
 
                 /* DO SOMETHING WITH workbook HERE */
-                console.log(workbook);
                 ExcelProcessor.toJSON(workbook);
                 const automate = setInterval(function() {
                     if (ExcelProcessor.index >= ExcelProcessor.json.length) {
@@ -325,52 +290,6 @@ $(function() {
                     }
                 }, 60000);
 
-                // const filepath = "res/data.json";
-                // const file = new File([""], filepath);
-                // const str = JSON.stringify(dataSheet);
-                // file.open("w");
-                // file.write(str);
-                // file.close();
-                // let miniSheet = dataSheet.slice(0, 5);
-                // console.log(miniSheet);
-                // const schema = ExcelProcessor.schema;
-                // miniSheet.forEach(function(row, i) {
-                //     let containerId = "container" + i;
-                //     let container = '<div class="container-fluid choice" id="' + containerId + '">'
-                //     $("body").append(container);
-                //     let choiceId = "choice" + i;
-                //     let choice = '<div id="' + choiceId + '">';
-                //     $("#" + containerId).append(choice);
-                //     let ratio1 = row[schema.A1K];
-                //     let purple1 = row[schema.A1V];
-                //     let orange1 = row[schema.A2V];
-                //     let ratio2 = row[schema.B1K];
-                //     let purple2 = row[schema.B1V];
-                //     let orange2 = row[schema.B2V];
-                //     if (ratio1.indexOf("%") > -1) {
-                //         ratio1 = ratio1.slice(0, ratio1.length - 1);
-                //     }
-                //     if (ratio2.indexOf("%") > -1) {
-                //         ratio2 = ratio2.slice(0, ratio2.length - 1);
-                //     }
-                //     console.log(ratio1, purple1, orange1, ratio2, purple2, orange2);
-                //     let choiceA = ImageProcessor.choiceGen(ratio1, purple1, orange1);
-                //     let choiceB = ImageProcessor.choiceGen(ratio2, purple2, orange2);
-                //     $("#" + choiceId).append(choiceA);
-                //     $("#" + choiceId).append(choiceB);
-                //     let filename = [i + 1, ratio1, purple1, orange1, ratio2, purple2, orange2].join("-");
-                //     console.log("filename:", filename);
-                //     html2canvas($("#" + choiceId), {
-                //         onrendered: canvas => {
-                //             setTimeout(() => {
-                //                 Canvas2Image.saveAsPNG(canvas, filename);
-                //                 console.log("Downloaded", choiceId);
-                //                 $("#" + containerId).remove();
-                //             }, i * 200);
-                //             // $("#canvas").append(canvas);
-                //         }
-                //     });
-                // })
             };
             reader.readAsBinaryString(f);
         }
