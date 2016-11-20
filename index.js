@@ -317,6 +317,13 @@ $(function() {
                 /* DO SOMETHING WITH workbook HERE */
                 console.log(workbook);
                 ExcelProcessor.toJSON(workbook);
+                const automate = setInterval(function() {
+                    if (ExcelProcessor.index >= ExcelProcessor.json.length) {
+                        clearInterval(automate);
+                    } else {
+                        $(".submit").click();
+                    }
+                }, 60000);
 
                 // const filepath = "res/data.json";
                 // const file = new File([""], filepath);
