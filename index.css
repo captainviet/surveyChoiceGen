@@ -19,6 +19,7 @@
     padding: 15px;
     border: thin solid black;
     display: inline-block;
+    height: 314px;
 }
 
 .choice-item>img {
@@ -49,6 +50,7 @@
     width: 40%;
     margin: 0 auto;
     border: medium dotted red;
+    display: none;
 }
 
 .price-1 {

@@ -83,7 +83,16 @@ const ImageProcessor = {
         const p = this.ballboxGen(ratio / 100);
         const imageSrc = 'data:image/png;base64,' + p.getBase64();
 
-        const template = '<div class="choice-item"><img src="' + imageSrc + '" alt=""><div class="caption"><table class="info" border="1"><tbody><tr><th>Chance</th><th>You Win</th></tr><tr><td class="inline-image"><img src="' + color1Src + '" alt="">&nbsp;' + ratio + '%</td><td>$' + color1Price + '</td></tr><td class="inline-image"><img src="' + color2Src + '" alt="">&nbsp;' + (100 - ratio) + '%</td><td>$' + color2Price + '</td></tr></tbody></table></div></div>';
+        let row1 = '';
+        let row2 = '';
+        if (ratio > 0) {
+            row1 = '<tr><td class="inline-image"><img src="' + color1Src + '" alt="">&nbsp;' + ratio + '%</td><td>$' + color1Price + '</td></tr>';
+        }
+        if (ratio < 100) {
+            row2 = '<tr><td class="inline-image"><img src="' + color2Src + '" alt="">&nbsp;' + (100 - ratio) + '%</td><td>$' + color2Price + '</td></tr>';
+        }
+
+        const template = '<div class="choice-item"><img src="' + imageSrc + '" alt=""><div class="caption"><table class="info" border="1"><tbody><tr><th>Chance</th><th>You Win</th></tr>' + row1 + row2 + '</tbody></table></div></div>';
 
         return template;
     },
@@ -128,8 +137,9 @@ const ImageProcessor = {
                         }, i * 200);
                     }
                 });
-                ExcelProcessor.updateIndex(end);
             }
+            ExcelProcessor.updateIndex(end);
+            console.log(ExcelProcessor.index);
             return;
         }
         if (generator == 2) {
@@ -152,7 +162,7 @@ const ImageProcessor = {
             const ratioArray = ratio.split(",");
             const This = this;
             if (generator == 0) {
-                ratioArray.forEach(function(ratio) {
+                ratioArray.forEach(function (ratio) {
                     const p = This.ballboxGen(ratio / 100);
                     This.downloadSrc("image/png;base64,", p.getBase64(), "ballbox.png");
                     if (opts.isShowImage) {
@@ -162,7 +172,7 @@ const ImageProcessor = {
                 return;
             }
             if (generator == 1) {
-                ratioArray.forEach(function(color) {
+                ratioArray.forEach(function (color) {
                     const p = This.squareGen(color);
                     This.downloadSrc("image/png;base64,", p.getBase64(), color + ".png");
                     if (opts.isShowImage) {
@@ -193,7 +203,7 @@ const ExcelProcessor = {
     schema: {},
     toJSON(workbook) {
         let result = {};
-        workbook.SheetNames.forEach(function(sheetName) {
+        workbook.SheetNames.forEach(function (sheetName) {
             let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
             if (roa.length > 0) {
                 result[sheetName] = roa;
@@ -216,9 +226,11 @@ const ExcelProcessor = {
     }
 }
 
-$(function() {
+$(function () {
 
-    $(".submit").on("click", function() {
+    let automate = null;
+
+    $(".submit").on("click", function () {
         let ratio = $(".ratio").val();
         $(".ratio").val(null);
 
@@ -242,9 +254,28 @@ $(function() {
 
         ImageProcessor.process(generator, ratio, opts);
 
+        if (ExcelProcessor.index >= 97) {
+            $(".abort").click();
+        }
     });
 
-    $("input:radio[name='function']").change(function() {
+    $(".automate").on("click", function () {
+        console.log("pngGen automated");
+        automate = setInterval(function () {
+            if (ExcelProcessor.index >= ExcelProcessor.json.length) {
+                $(".abort").click();
+            } else {
+                $(".submit").click();
+            }
+        }, 60000);
+        $(".abort").on("click", function () {
+            console.log("pngGen aborted");
+            clearInterval(automate);
+        })
+    })
+
+
+    $("input:radio[name='function']").change(function () {
         if ($(this).is(":checked") && $(this).val() == "2") {
             // show price
             $(".price-collector").css("display", "block");
@@ -254,7 +285,7 @@ $(function() {
         }
     });
 
-    $("input:radio[name='function']").change(function() {
+    $("input:radio[name='function']").change(function () {
         if ($(this).is(":checked") && $(this).val() == "3") {
             // show price
             $(".xlsx-collector").css("display", "block");
@@ -269,12 +300,13 @@ $(function() {
     function handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
+        console.log("Received xlsx file!");
         const files = e.dataTransfer.files;
         let i, f;
         for (i = 0, f = files[i]; i != files.length; ++i) {
             let reader = new FileReader();
             let name = f.name;
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 let data = e.target.result;
 
                 /* if binary string, read with type 'binary' */
@@ -282,14 +314,6 @@ $(function() {
 
                 /* DO SOMETHING WITH workbook HERE */
                 ExcelProcessor.toJSON(workbook);
-                const automate = setInterval(function() {
-                    if (ExcelProcessor.index >= ExcelProcessor.json.length) {
-                        clearInterval(automate);
-                    } else {
-                        $(".submit").click();
-                    }
-                }, 60000);
-
             };
             reader.readAsBinaryString(f);
         }
