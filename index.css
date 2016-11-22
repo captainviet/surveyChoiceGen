@@ -40,17 +40,30 @@
     vertical-align: middle;
 }
 
-.price-collector {
+.price-collector,
+.xlsx-collector,
+.square,
+.automate,
+.abort {
     display: none;
 }
 
-.xlsx-collector {
+.xlsx-input {
     height: 5%;
     width: 40%;
     margin: 0 auto;
     border: medium dotted red;
 }
 
-.price-1 {
+.xlsx-text {
+    color: gainsboro;
+    margin: 0;
+}
+
+.left-item {
     margin-right: 50px;
+}
+
+[step] {
+    width: 50px;
 }

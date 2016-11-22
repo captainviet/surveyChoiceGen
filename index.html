@@ -20,22 +20,34 @@
         <input type="radio" name="function" value="2">Choice
         <input type="radio" name="function" value="3">Excel
     </div>
-    <div class="container-fluid">
-        <label for="ratio">Enter number of balls (for multiple use ",")&nbsp;</label>
+    <div class="container-fluid ratio-collector">
+        <label for="ratio" class="ballbox">Enter number of balls (for multiple use ",")&nbsp;</label>
+        <label for="ratio" class="square">Enter color of square (for multiple use ",")&nbsp;</label>
         <input type="text" class="ratio" name="ratio">
     </div>
-    <div class="container-fluid xlsx-collector" id="drop"></div>
+    <div class="container-fluid xlsx-collector xlsx-input" id="drop">
+        <p class="xlsx-text">Drop .xlsx file here</p>
+    </div>
+    <div class="container-fluid xlsx-collector">
+        <label for="start">Start</label>
+        <input type="number" name="points" step="1" class="start left-item" name="start">
+        <label for="end">End</label>
+        <input type="number" name="points" step="1" class="end" name="end">
+    </div>
     <div class="container-fluid price-collector">
         <label for="price-1">Enter purple's price&nbsp;</label>
-        <input type="text" class="price-1" name="price-1">
+        <input type="text" class="price-1 left-item" name="price-1">
         <label for="price-2">Enter yellow's price&nbsp;</label>
         <input type="text" class="price-2" name="price-2">
     </div>
+    <div class="container-fluid xlsx-collector status"></div>
     <div class="container-fluid">
         <input type="checkbox" class="showImage">Show Image
     </div>
     <div class="container-fluid">
         <button class="submit" type="submit">Generate</button>
+        <button class="automate" type="button">Start</button>
+        <button class="abort" type="button">Abort</button>
     </div>
     <div class="image"></div>
     <div class="container-fluid choice">

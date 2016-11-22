@@ -103,6 +103,9 @@ const ImageProcessor = {
             const json = ExcelProcessor.json;
             const schema = ExcelProcessor.schema;
             for (let i = start; i < end; i++) {
+                if (i > ExcelProcessor.end) {
+                    break;
+                }
                 let row = json[i];
                 let containerId = "container" + i;
                 let container = '<div class="container-fluid choice" id="' + containerId + '">'
@@ -137,7 +140,7 @@ const ImageProcessor = {
                         }, i * 200);
                     }
                 });
-                ExcelProcessor.updateIndex(end);
+                ExcelProcessor.updateIndex(i);
             }
             return;
         }
@@ -199,6 +202,7 @@ const ImageProcessor = {
 const ExcelProcessor = {
     json: {},
     index: 0,
+    end: 0,
     schema: {},
     toJSON(workbook) {
         let result = {};
@@ -218,14 +222,19 @@ const ExcelProcessor = {
             B2V: workbook.Sheets[sheetName].K1.h,
         }
         const dataSheet = result[sheetName];
-        this.json = dataSheet
+        this.json = dataSheet;
     },
     updateIndex(index) {
         this.index = index;
+    },
+    updateEnd(end) {
+        this.end = end;
     }
 }
 
 $(function () {
+
+    automate = null;
 
     $(".submit").on("click", function () {
         let ratio = $(".ratio").val();
@@ -250,7 +259,55 @@ $(function () {
         }
 
         ImageProcessor.process(generator, ratio, opts);
+    });
 
+    $(".automate").on("click", function () {
+        $(".abort").click();
+        const start = $(".start").val();
+        const end = $(".end").val();
+        const amount = end - start + 1;
+        // if start not lies within 1-json.length
+        if (isNaN(start) || start <= 0 || (ExcelProcessor.json != {} && start > ExcelProcessor.json.length)) {
+            $(".status").html("Invalid range!");
+            $(".start").val("");
+            return;
+        }
+        // if end not lies within start-json.length
+        if (isNaN(end) || end < start || (ExcelProcessor.json != {} && end > ExcelProcessor.json.length)) {
+            $(".status").html("Invalid range!");
+            $(".end").val("");
+            return;
+        }
+        // update ExcelProcessor data to normalized value
+        ExcelProcessor.updateIndex(start - 1);
+        ExcelProcessor.updateEnd(end - 1);
+        console.log(start, end, ExcelProcessor);
+        automate = setInterval(function () {
+            $(".status").html((end - ExcelProcessor.index + 1) + "/" + amount + " Processing...");
+            if (ExcelProcessor.index >= ExcelProcessor.end) {
+                clearInterval(automate);
+                $(".status").html(amount + "/" + amount + " Finished!");
+            } else {
+                $(".submit").click();
+            }
+        }, 60000);
+    });
+
+    $(".abort").on("click", function () {
+        console.log(automate, ExcelProcessor);
+        clearInterval(automate);
+    })
+
+    $("input:radio[name='function']").change(function () {
+        if ($(this).is(":checked") && $(this).val() == "1") {
+            // show square's label
+            $(".square").css("display", "inline-block");
+            $(".ballbox").css("display", "none");
+        } else {
+            // show ballbox's label
+            $(".square").css("display", "none");
+            $(".ballbox").css("display", "inline-block");
+        }
     });
 
     $("input:radio[name='function']").change(function () {
@@ -267,11 +324,20 @@ $(function () {
         if ($(this).is(":checked") && $(this).val() == "3") {
             // show price
             $(".xlsx-collector").css("display", "block");
+            $(".ratio-collector").css("display", "none");
+            $(".automate").css("display", "inline");
+            $(".abort").css("display", "inline");
+            $(".submit").css("display", "none");
         } else {
             // hide price
             $(".xlsx-collector").css("display", "none");
+            $(".ratio-collector").css("display", "block");
+            $(".automate").css("display", "none");
+            $(".abort").css("display", "none");
+            $(".submit").css("display", "inline");
         }
     });
+
 
     const drop = $(".xlsx-collector").get(0);
 
@@ -292,6 +358,8 @@ $(function () {
 
                 /* DO SOMETHING WITH workbook HERE */
                 ExcelProcessor.toJSON(workbook);
+                $(".start").val(1);
+                $(".end").val(ExcelProcessor.json.length);
                 const automate = setInterval(function () {
                     if (ExcelProcessor.index >= ExcelProcessor.json.length) {
                         clearInterval(automate);
