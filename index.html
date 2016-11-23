@@ -14,11 +14,11 @@
 
 <body>
     <div class="container-fluid">
-        <label for="function">Select generator</label>
-        <input type="radio" name="function" value="0" checked>Ball Box
+        <label for="function">Select generator&nbsp;</label>
+        <input type="radio" name="function" value="0" checked>Excel
         <input type="radio" name="function" value="1">Square
         <input type="radio" name="function" value="2">Choice
-        <input type="radio" name="function" value="3">Excel
+        <input type="radio" name="function" value="3">Ball Box
     </div>
     <div class="container-fluid ratio-collector">
         <label for="ratio" class="ballbox">Enter number of balls (for multiple use ",")&nbsp;</label>
@@ -29,9 +29,15 @@
         <p class="xlsx-text">Drop .xlsx file here</p>
     </div>
     <div class="container-fluid xlsx-collector">
-        <label for="start">Start</label>
+        <label for="sheet">Please select the your sheet&nbsp;</label>
+        <select name="sheet" id="sheetIndex">
+            <option value="-1" id="default">----</option>
+        </select>
+    </div>
+    <div class="container-fluid xlsx-collector">
+        <label for="start">Start&nbsp;</label>
         <input type="number" name="points" step="1" class="start left-item" name="start">
-        <label for="end">End</label>
+        <label for="end">End&nbsp;</label>
         <input type="number" name="points" step="1" class="end" name="end">
     </div>
     <div class="container-fluid price-collector">
@@ -41,7 +47,7 @@
         <input type="text" class="price-2" name="price-2">
     </div>
     <div class="container-fluid xlsx-collector status"></div>
-    <div class="container-fluid">
+    <div class="container-fluid ratio-collector">
         <input type="checkbox" class="showImage">Show Image
     </div>
     <div class="container-fluid">

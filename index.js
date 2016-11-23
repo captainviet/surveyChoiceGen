@@ -97,7 +97,7 @@ const ImageProcessor = {
         return template;
     },
     process(generator, ratio, opts) {
-        if (generator == 3) {
+        if (generator == 0) {
             const start = ExcelProcessor.index;
             const end = start + 10;
             const json = ExcelProcessor.json;
@@ -142,6 +142,7 @@ const ImageProcessor = {
                 });
                 ExcelProcessor.updateIndex(i);
             }
+            ExcelProcessor.updateIndex(end);
             return;
         }
         if (generator == 2) {
@@ -163,8 +164,8 @@ const ImageProcessor = {
         if (ratio.indexOf(",") > 0) {
             const ratioArray = ratio.split(",");
             const This = this;
-            if (generator == 0) {
-                ratioArray.forEach(function (ratio) {
+            if (generator == 3) {
+                ratioArray.forEach(function(ratio) {
                     const p = This.ballboxGen(ratio / 100);
                     This.downloadSrc("image/png;base64,", p.getBase64(), "ballbox.png");
                     if (opts.isShowImage) {
@@ -174,7 +175,7 @@ const ImageProcessor = {
                 return;
             }
             if (generator == 1) {
-                ratioArray.forEach(function (color) {
+                ratioArray.forEach(function(color) {
                     const p = This.squareGen(color);
                     This.downloadSrc("image/png;base64,", p.getBase64(), color + ".png");
                     if (opts.isShowImage) {
@@ -185,7 +186,7 @@ const ImageProcessor = {
             }
         } else {
             let p = null;
-            if (generator == 0) {
+            if (generator == 3) {
                 p = this.ballboxGen(ratio / 100);
                 this.downloadSrc("image/png;base64,", p.getBase64(), "ballbox.png");
             } else if (generator == 1) {
@@ -200,13 +201,21 @@ const ImageProcessor = {
 };
 
 const ExcelProcessor = {
+    dataSheet: {},
+    sheetNames: {},
     json: {},
     index: 0,
     end: 0,
     schema: {},
-    toJSON(workbook) {
+    updateJSON(sheetIndex) {
+        const sheetName = this.sheetNames[sheetIndex];
+        const dataSheet = this.dataSheet;
+        this.json = dataSheet[sheetName];
+        this.end = this.json.length;
+    },
+    updateDataSheet(workbook) {
         let result = {};
-        workbook.SheetNames.forEach(function (sheetName) {
+        workbook.SheetNames.forEach(function(sheetName) {
             let roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
             if (roa.length > 0) {
                 result[sheetName] = roa;
@@ -221,22 +230,31 @@ const ExcelProcessor = {
             B1V: workbook.Sheets[sheetName].J1.h,
             B2V: workbook.Sheets[sheetName].K1.h,
         }
-        const dataSheet = result[sheetName];
-        this.json = dataSheet;
+        this.dataSheet = result;
+        this.sheetNames = workbook.SheetNames;
+    },
+    updateSheetIndex(sheetIndex) {
+        console.log(sheetIndex);
+        this.updateJSON(sheetIndex);
     },
     updateIndex(index) {
         this.index = index;
     },
     updateEnd(end) {
         this.end = end;
+    },
+    getJSONLength(sheetIndex) {
+        const sheetName = this.sheetNames[sheetIndex];
+        const dataSheet = this.dataSheet;
+        return dataSheet[sheetName].length;
     }
 }
 
-$(function () {
+$(function() {
 
     automate = null;
 
-    $(".submit").on("click", function () {
+    $(".submit").on("click", function() {
         let ratio = $(".ratio").val();
         $(".ratio").val(null);
 
@@ -261,8 +279,19 @@ $(function () {
         ImageProcessor.process(generator, ratio, opts);
     });
 
-    $(".automate").on("click", function () {
+    $(".automate").on("click", function() {
         $(".abort").click();
+
+        const sheetIndex = $("option:selected").val();
+        if (sheetIndex == -1) {
+            $(".status").html("Invalid sheet!");
+            return;
+        }
+        if (sheetIndex != ExcelProcessor.sheetIndex) {
+            console.log("update json sheet");
+            ExcelProcessor.updateSheetIndex(sheetIndex);
+        }
+
         const start = $(".start").val();
         const end = $(".end").val();
         const amount = end - start + 1;
@@ -278,50 +307,31 @@ $(function () {
             $(".end").val("");
             return;
         }
+        console.log("Automation started");
         // update ExcelProcessor data to normalized value
         ExcelProcessor.updateIndex(start - 1);
         ExcelProcessor.updateEnd(end - 1);
         console.log(start, end, ExcelProcessor);
-        automate = setInterval(function () {
+        automate = setInterval(function() {
             $(".status").html((end - ExcelProcessor.index + 1) + "/" + amount + " Processing...");
             if (ExcelProcessor.index >= ExcelProcessor.end) {
                 clearInterval(automate);
                 $(".status").html(amount + "/" + amount + " Finished!");
             } else {
+                console.log("Index:", ExcelProcessor.index);
                 $(".submit").click();
             }
         }, 60000);
     });
 
-    $(".abort").on("click", function () {
+    $(".abort").on("click", function() {
+        console.log("Automation aborted!");
         console.log(automate, ExcelProcessor);
         clearInterval(automate);
     })
 
-    $("input:radio[name='function']").change(function () {
-        if ($(this).is(":checked") && $(this).val() == "1") {
-            // show square's label
-            $(".square").css("display", "inline-block");
-            $(".ballbox").css("display", "none");
-        } else {
-            // show ballbox's label
-            $(".square").css("display", "none");
-            $(".ballbox").css("display", "inline-block");
-        }
-    });
-
-    $("input:radio[name='function']").change(function () {
-        if ($(this).is(":checked") && $(this).val() == "2") {
-            // show price
-            $(".price-collector").css("display", "block");
-        } else {
-            // hide price
-            $(".price-collector").css("display", "none");
-        }
-    });
-
-    $("input:radio[name='function']").change(function () {
-        if ($(this).is(":checked") && $(this).val() == "3") {
+    $("input:radio[name='function']").change(function() {
+        if ($(this).is(":checked") && $(this).val() == "0") {
             // show price
             $(".xlsx-collector").css("display", "block");
             $(".ratio-collector").css("display", "none");
@@ -338,6 +348,34 @@ $(function () {
         }
     });
 
+    $("input:radio[name='function']").change(function() {
+        if ($(this).is(":checked") && $(this).val() == "1") {
+            // show square's label
+            $(".square").css("display", "inline-block");
+            $(".ballbox").css("display", "none");
+        } else {
+            // show ballbox's label
+            $(".square").css("display", "none");
+            $(".ballbox").css("display", "inline-block");
+        }
+    });
+
+    $("input:radio[name='function']").change(function() {
+        if ($(this).is(":checked") && $(this).val() == "2") {
+            // show price
+            $(".price-collector").css("display", "block");
+        } else {
+            // hide price
+            $(".price-collector").css("display", "none");
+        }
+    });
+
+    $("#sheetIndex").change(function() {
+        console.log("sheet changed");
+        const sheetIndex = $("option:selected").val();
+        $(".start").val(1);
+        $(".end").val(ExcelProcessor.getJSONLength(sheetIndex));
+    });
 
     const drop = $(".xlsx-collector").get(0);
 
@@ -350,24 +388,22 @@ $(function () {
         for (i = 0, f = files[i]; i != files.length; ++i) {
             let reader = new FileReader();
             let name = f.name;
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 let data = e.target.result;
 
                 /* if binary string, read with type 'binary' */
                 let workbook = XLSX.read(data, { type: 'binary' });
 
                 /* DO SOMETHING WITH workbook HERE */
-                ExcelProcessor.toJSON(workbook);
-                $(".start").val(1);
-                $(".end").val(ExcelProcessor.json.length);
-                const automate = setInterval(function () {
-                    if (ExcelProcessor.index >= ExcelProcessor.json.length) {
-                        clearInterval(automate);
-                    } else {
-                        $(".submit").click();
-                    }
-                }, 60000);
+                let sheetNames = workbook.SheetNames;
+                sheetNames.forEach(function(sheetName, i) {
+                    let option = '<option value="' + i + '">' + sheetName + '</option>';
+                    $("#sheetIndex").append(option);
+                });
+                // $("#default").remove();
 
+                ExcelProcessor.updateDataSheet(workbook);
+                ExcelProcessor.updateSheetIndex(0);
             };
             reader.readAsBinaryString(f);
         }

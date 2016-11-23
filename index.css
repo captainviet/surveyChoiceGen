@@ -41,10 +41,8 @@
 }
 
 .price-collector,
-.xlsx-collector,
-.square,
-.automate,
-.abort {
+.ratio-collector,
+.submit {
     display: none;
 }
 
@@ -66,4 +64,8 @@
 
 [step] {
     width: 50px;
+}
+
+.status {
+    height: 20px;
 }
